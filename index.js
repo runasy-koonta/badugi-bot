@@ -1,7 +1,7 @@
 require('dotenv').config();
 const WebSocket = require('ws');
 
-const ws = new WebSocket('wss://baduki.progames.world');
+const ws = new WebSocket(process.env.SERVER_ADDRESS);
 
 const sendMessage = (type, value) => {
     ws.send(JSON.stringify({
@@ -21,13 +21,17 @@ ws.on('open', () => {
     });
 });
 
+ws.on('close', () => {
+    console.log('Connection has closed');
+});
+
 ws.on('message', data => {
     const message = JSON.parse(data);
+    const type = message.type, value = JSON.parse(decodeURIComponent(message.value));
 
-    if (message.type === 'PING') {
-        sendMessage('PONG', {});
+    if (type === 'Ping') {
+        sendMessage('Pong', {});
     } else {
-        const type = message.type, value = JSON.parse(decodeURIComponent(message.value));
         gotMessage(type, value);
     }
 });
